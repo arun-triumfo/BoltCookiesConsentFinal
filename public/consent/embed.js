@@ -1,3 +1,52 @@
+// Execute this before anything else
+(function blockImmediately() {
+    // Block GA functions immediately
+    window.ga = function() { return undefined; };
+    window.gtag = function() { return undefined; };
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push = function() { return undefined; };
+    
+    // Block GTM functions
+    window.google_tag_manager = undefined;
+    window.GoogleAnalyticsObject = undefined;
+    
+    // Remove any existing GA/GTM scripts
+    const scripts = document.querySelectorAll('script[src*="google-analytics.com"], script[src*="gtag"], script[src*="googletagmanager.com"]');
+    scripts.forEach(script => script.remove());
+    
+    // Clear GA cookies
+    const cookies = document.cookie.split(';');
+    cookies.forEach(cookie => {
+        if (cookie.includes('_ga') || cookie.includes('_gid') || cookie.includes('_gat') || 
+            cookie.includes('_dc_gtm') || cookie.includes('_gcl_au')) {
+            document.cookie = cookie.split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
+    });
+    
+    // Block script creation for GA/GTM
+    const originalCreateElement = document.createElement;
+    document.createElement = function(tagName) {
+        const element = originalCreateElement.call(document, tagName);
+        if (tagName.toLowerCase() === 'script') {
+            const originalSetAttribute = element.setAttribute;
+            element.setAttribute = function(name, value) {
+                if (value && typeof value === 'string' && (
+                    value.includes('google-analytics.com') ||
+                    value.includes('gtag') ||
+                    value.includes('googletagmanager.com')
+                )) {
+                    console.log('Blocked script:', value);
+                    return element;
+                }
+                return originalSetAttribute.call(this, name, value);
+            };
+        }
+        return element;
+    };
+    
+    console.log('Immediate GA/GTM blocking initialized');
+})();
+
 (function() {
     // Check if script is already initialized
     if (window.BOLT_CONSENT_INITIALIZED) {
@@ -225,6 +274,8 @@
                             consentData[category.key] = true;
                         });
                         await saveConsent(consentData);
+                        // Initialize GA when accepting all
+                        initializeGoogleAnalytics();
                     }
                 });
             }
@@ -238,6 +289,8 @@
                             consentData[category.key] = category.is_required;
                         });
                         await saveConsent(consentData);
+                        // Block GA when rejecting all
+                        blockGoogleAnalytics();
                     }
                 });
             }
@@ -261,7 +314,26 @@
                     checkboxes.forEach(checkbox => {
                         consentData[checkbox.id] = checkbox.checked;
                     });
+                    
+                    // First save the consent
                     await saveConsent(consentData);
+                    
+                    // Then handle GA based on statistics consent
+                    if (consentData.statistics === true) {
+                        console.log('Statistics consent granted in preferences, initializing GA...');
+                        // Remove any existing GA scripts first
+                        const existingScripts = document.querySelectorAll('script[src*="google-analytics.com"], script[src*="gtag"]');
+                        existingScripts.forEach(script => script.remove());
+                        
+                        // Initialize GA
+                        initializeGoogleAnalytics();
+                    } else {
+                        console.log('Statistics consent denied in preferences, blocking GA...');
+                        blockGoogleAnalytics();
+                    }
+                    
+                    // Hide the modal after handling GA
+                    hideSettingsModal();
                 });
             }
 
@@ -462,6 +534,65 @@
         }
     }
 
+    // Function to block Google Analytics
+    function blockGoogleAnalytics() {
+        try {
+            // Block GA functions
+            window.ga = function() { return undefined; };
+            window.gtag = function() { return undefined; };
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push = function() { return undefined; };
+            
+            // Remove existing GA scripts
+            const scripts = document.querySelectorAll('script[src*="google-analytics.com"], script[src*="gtag"]');
+            scripts.forEach(script => script.remove());
+            
+            // Clear GA cookies
+            const cookies = document.cookie.split(';');
+            cookies.forEach(cookie => {
+                if (cookie.includes('_ga') || cookie.includes('_gid') || cookie.includes('_gat') || 
+                    cookie.includes('_dc_gtm') || cookie.includes('_gcl_au')) {
+                    document.cookie = cookie.split('=')[0] + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                }
+            });
+            
+            console.log('Google Analytics blocked successfully');
+        } catch (error) {
+            console.error('Error blocking Google Analytics:', error);
+        }
+    }
+
+    // Function to initialize Google Analytics
+    function initializeGoogleAnalytics() {
+        try {
+            // Initialize GA4
+            const ga4Id = 'G-8QJ7PSP28H'; // Replace with your GA4 ID
+            
+            // Remove any existing GA scripts first
+            const existingScripts = document.querySelectorAll('script[src*="google-analytics.com"], script[src*="gtag"]');
+            existingScripts.forEach(script => script.remove());
+            
+            // Create GA script
+            const gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+            
+            // Add load event listener
+            gaScript.onload = function() {
+                // Initialize gtag after script loads
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', ga4Id);
+                console.log('Google Analytics initialized successfully');
+            };
+            
+            document.head.appendChild(gaScript);
+        } catch (error) {
+            console.error('Error initializing Google Analytics:', error);
+        }
+    }
+
     // Initialize as early as possible
     function init() {
         if (window.BOLT_CONSENT_INITIALIZED) {
@@ -470,14 +601,26 @@
         }
         window.BOLT_CONSENT_INITIALIZED = true;
         
+        // Always block GA by default
+        blockGoogleAnalytics();
+        
         const consentData = JSON.parse(localStorage.getItem('bolt_consent') || '{}');
         createBanner();
         
         if (checkConsentExists()) {
             console.log('Consent exists, applying saved preferences...');
             hideBanner();
+            // Only initialize GA if statistics consent exists and is explicitly true
+            if (consentData && consentData.statistics === true) {
+                console.log('Statistics consent found, initializing GA...');
+                initializeGoogleAnalytics();
+            } else {
+                console.log('No statistics consent, keeping GA blocked...');
+                blockGoogleAnalytics();
+            }
         } else {
-            console.log('No consent exists, showing banner...');
+            console.log('No consent exists, showing banner and keeping GA blocked...');
+            blockGoogleAnalytics();
         }
     }
 

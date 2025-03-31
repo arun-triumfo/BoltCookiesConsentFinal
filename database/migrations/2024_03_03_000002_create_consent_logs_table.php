@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('domain_id')->constrained()->onDelete('cascade');
             $table->string('cookie_id')->unique();
             $table->json('consent_data');
-            $table->json('categories    ');
+           // $table->json('categories    ');
             $table->string('ip_address')->nullable();
             $table->text('user_agent')->nullable();
             $table->string('domain');

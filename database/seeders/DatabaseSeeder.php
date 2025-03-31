@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ConsentCategorySeeder::class,
+            DomainSeeder::class,
             BannerSettingSeeder::class,
         ]);
     }

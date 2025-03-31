@@ -2,11 +2,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="consent-banner-container">
         <div class="consent-banner-header">
-            <h3>{{ $bannerSettings->title }}</h3>
+            <h3>{{ $bannerSettings->banner_title }}</h3>
             <button type="button" class="consent-close" id="consent-close">&times;</button>
         </div>
         <div class="consent-banner-body">
-            <p>{{ $bannerSettings->description }}</p>
+            <p>{{ $bannerSettings->banner_description }}</p>
             
             <div class="consent-options">
                 @php
@@ -41,11 +41,11 @@
             @if($bannerSettings->show_reject_button)
             <button type="button" class="btn btn-outline-secondary" id="consent-reject-all">{{ $bannerSettings->reject_button_text }}</button>
             @endif
-            @if($bannerSettings->show_settings_button)
-            <button type="button" class="btn btn-outline-primary" id="consent-customize-settings">Customize Settings</button>
+            @if($bannerSettings->show_manage_button)
+            <button type="button" class="btn btn-outline-primary" id="consent-customize-settings">{{ $bannerSettings->manage_button_text }}</button>
             @endif
             <button type="button" class="btn btn-primary" id="consent-accept-all">{{ $bannerSettings->accept_button_text }}</button>
-            <button type="button" class="btn btn-success" id="consent-save" style="display: none;">Save Preferences</button>
+            <button type="button" class="btn btn-success" id="consent-save" style="display: none;">{{ $bannerSettings->save_button_text }}</button>
         </div>
     </div>
 </div>
