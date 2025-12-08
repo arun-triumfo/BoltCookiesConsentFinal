@@ -31,3 +31,12 @@ DB_DATABASE=triumfode_denew
 DB_USERNAME=triumfode_newde
 DB_PASSWORD=IZ*wt^%aN{Wl
 https://www.triumfo.de/public/phpMyAdmin/
+
+
+
+https://radonllcapi.mobel.us/
+
+DB_DATABASE=radonllcapimobel_llcapi
+DB_USERNAME=radonllcapimobel_apillc
+DB_PASSWORD=The009@1
+
