@@ -12,31 +12,4 @@ require __DIR__.'/vendor/autoload.php';
 $status = (require_once __DIR__.'/bootstrap/app.php')
     ->handleCommand(new ArgvInput);
 
-exit($status);
-DB_DATABASE=expostandzone_hostess
-DB_USERNAME=expostandzone_hostessuser
-DB_PASSWORD=WHP0b],5U_54
-
-
-
-DB_DATABASE=triumfousmobel_api
-DB_USERNAME=triumfousmobel_apiuser
-DB_PASSWORD=qBMhgV$IB$g{V%S{
-
-https://triumfous.mobel.us/public/phpMyAdmin/
-
-
-
-DB_DATABASE=triumfode_denew
-DB_USERNAME=triumfode_newde
-DB_PASSWORD=IZ*wt^%aN{Wl
-https://www.triumfo.de/public/phpMyAdmin/
-
-
-
-https://radonllcapi.mobel.us/
-
-DB_DATABASE=radonllcapimobel_llcapi
-DB_USERNAME=radonllcapimobel_apillc
-DB_PASSWORD=The009@1
 
