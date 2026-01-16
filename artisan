@@ -13,3 +13,16 @@ $status = (require_once __DIR__.'/bootstrap/app.php')
     ->handleCommand(new ArgvInput);
 
 
+DB_DATABASE=radonllcapimobel_llcapi
+DB_USERNAME=radonllcapimobel_apillc
+DB_PASSWORD=The009@1
+
+
+DB_DATABASE=triumfoaenew
+DB_USERNAME=aetriumfonew
+DB_PASSWORD=The009@1
+
+
+DB_DATABASE=triumfous_triumfolaravel
+DB_USERNAME=triumfous_triumfous
+DB_PASSWORD=The009@1
